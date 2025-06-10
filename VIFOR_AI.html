@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>VIFOR AI - نموذج HTML</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <!-- D3.js library for knowledge graph visualization -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root {
+            --primary-glow: #00f2ff;
+            --secondary-glow: #ff00f2;
+            --accent-glow: #f2ff00;
+            --danger-glow: #ff4d4d;
+            --primary-glow-rgb: 0, 242, 255;
+            --accent-glow-rgb: 242, 255, 0; 
+            --danger-glow-rgb: 255, 77, 77;
+            --secondary-glow-rgb: 255, 0, 242;
+            --button-hover-bg-rgb: var(--primary-glow-rgb);
+
+            /* Default to Dark Theme Variables */
+            --bg-main: #010007; 
+            --bg-surface: rgba(15, 15, 35, 0.7); 
+            --bg-surface-secondary: rgba(5, 10, 25, 0.2); 
+            --bg-input: rgba(0, 25, 50, 0.6);
+            --bg-control-panel: rgba(0, 10, 30, 0.6);
+            --bg-modal: rgba(15, 15, 35, 0.85); 
+            --text-primary: #e0e0ff; 
+            --text-secondary: #a0a0cc; 
+            --text-on-action-button: #1a1a2e; 
+            --text-on-action-button-rgb: 26,26,46; 
+            --border-main: rgba(0, 180, 255, 0.6); 
+            --border-secondary: rgba(0, 180, 255, 0.3);
+            --icon-fill-default: var(--text-secondary);
+            --icon-fill-active: var(--primary-glow);
+            --shadow-glow: var(--primary-glow);
+            --phone-bezel-color: #08080c;
+            --phone-frame-shadow: 0 0 0 5px #1a1a1a, 0 0 35px rgba(0, 120, 255, 0.6);
+            --button-hover-bg: rgba(var(--button-hover-bg-rgb), 0.15);
+            --font-primary: 'Almarai', sans-serif;
+            --font-futuristic: 'Orbitron', sans-serif;
+
+            --bg-nebula-1: rgba(var(--primary-glow-rgb), 0.3);
+            --bg-nebula-2: rgba(var(--secondary-glow-rgb), 0.3); 
+        }
+
+        html.light-theme {
+            --bg-main: #f0f2f5;
+            --bg-surface: rgba(255, 255, 255, 0.8);
+            --bg-surface-secondary: rgba(230, 235, 240, 0.7);
+            --bg-input: rgba(220, 225, 230, 0.8);
+            --bg-control-panel: rgba(245, 247, 250, 0.9);
+            --bg-modal: rgba(255, 255, 255, 0.95);
+            --text-primary: #2c3e50;
+            --text-secondary: #566573;
+            --text-on-action-button: #ffffff;
+            --text-on-action-button-rgb: 255,255,255;
+            --border-main: rgba(0, 120, 200, 0.5);
+            --border-secondary: rgba(0, 120, 200, 0.3);
+            --primary-glow: #007bff; 
+            --secondary-glow: #e83e8c;
+            --accent-glow: #ffc107;
+            --danger-glow: #dc3545;
+            --primary-glow-rgb: 0, 123, 255;
+            --accent-glow-rgb: 255, 193, 7;
+            --danger-glow-rgb: 220, 53, 69;
+            --secondary-glow-rgb: 232, 62, 140;
+            --icon-fill-default: var(--text-secondary);
+            --icon-fill-active: var(--primary-glow);
+            --shadow-glow: rgba(0,123,255,0.7);
+            --phone-bezel-color: #d0d0d5;
+            --phone-frame-shadow: 0 0 0 5px #b0b0b5, 0 0 25px rgba(0, 100, 200, 0.4);
+            --button-hover-bg: rgba(var(--button-hover-bg-rgb), 0.1);
+            --bg-nebula-1: rgba(var(--primary-glow-rgb), 0.1);
+            --bg-nebula-2: rgba(var(--secondary-glow-rgb), 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
+        body {
+            background-color: var(--bg-main); color: var(--text-primary); font-family: var(--font-primary);
+            display: flex; justify-content: center; align-items: center; position: relative;
+            touch-action: manipulation;
+            font-size: calc(10px * var(--font-scale, 1)); 
+        }
+        :root { --font-scale: 1; } 
+
+        /* --- Splash Screen Styles --- */
+        #splashScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-main);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease-out;
+            opacity: 1;
+        }
+
+        #splashScreen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .splash-content {
+            text-align: center;
+            position: relative;
+        }
+
+        .splash-title {
+            font-family: var(--font-futuristic);
+            font-size: 3rem;
+            color: var(--primary-glow);
+            text-shadow: 0 0 15px var(--shadow-glow), 0 0 25px var(--shadow-glow);
+            animation: textGlow 2.5s infinite alternate ease-in-out;
+        }
+
+        .splash-rings {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+        }
+
+        .splash-rings .ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid var(--primary-glow);
+            opacity: 0;
+            animation: expandRing 2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+        }
+
+        .splash-rings .ring:nth-child(2) {
+            animation-delay: 0.3s;
+            border-color: var(--secondary-glow);
+        }
+
+        .splash-rings .ring:nth-child(3) {
+            animation-delay: 0.6s;
+            border-color: var(--accent-glow);
+        }
+        
+        @keyframes textGlow {
+            from {
+                text-shadow: 0 0 10px var(--shadow-glow), 0 0 20px var(--shadow-glow);
+            }
+            to {
+                text-shadow: 0 0 20px var(--shadow-glow), 0 0 35px var(--shadow-glow);
+            }
+        }
+
+        @keyframes expandRing {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+        /* --- End of Splash Screen Styles --- */
+
+        .background-nebula { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(ellipse at 70% 30%, var(--bg-nebula-1) 0%, transparent 70%), radial-gradient(ellipse at 30% 70%, var(--bg-nebula-2) 0%, transparent 70%); animation: slowPulse 20s infinite alternate ease-in-out; z-index: -2; transition: opacity 0.5s; }
+        html.light-theme .background-nebula { opacity: 0.1; } 
+        @keyframes slowPulse { 0% { opacity: 0.6; } 100% { opacity: 1; } } 
+        
+        .data-stream-particles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: -1; }
+        .particle { position: absolute; background-color: var(--primary-glow); border-radius: 50%; opacity: 0; animation: streamParticle 5s linear infinite; }
+        @keyframes streamParticle { 0% { transform: translateY(110vh) scale(0.5); opacity: 0; } 10% { opacity: 0.7; } 90% { opacity: 0.7; } 100% { transform: translateY(-10vh) scale(1.5); opacity: 0; } }
+        .no-animations .particle, .no-animations .background-nebula, .no-animations .ai-core-visualizer * { animation: none !important; }
+
+        .phone-frame { width: 100%; height: 100%; max-width: min(400px, 100vw); max-height: min(820px, 100vh); margin: auto; position: relative; overflow: hidden; border-radius: 30px; box-shadow: var(--phone-frame-shadow); background-color: var(--phone-bezel-color); display: flex; justify-content: center; align-items: center; padding: 10px; transition: background-color 0.3s, box-shadow 0.3s; }
+        .phone-screen { width: 100%; height: 100%; display: flex; flex-direction: column; background: var(--bg-surface); backdrop-filter: blur(12px) saturate(130%); box-shadow: inset 0 0 15px rgba(var(--primary-glow-rgb), 0.2); border-radius: 20px; overflow: hidden; position: relative; transition: background-color 0.3s, box-shadow 0.3s; }
+        
+        .status-bar { display: flex; justify-content: space-between; padding: 8px 15px; font-size: calc(0.75rem * var(--font-scale, 1)); color: var(--text-secondary); font-family: var(--font-futuristic); flex-shrink: 0; background: rgba(0,0,0,0.1); border-bottom: 1px solid rgba(var(--border-main), 0.2); transition: color 0.3s, background-color 0.3s, border-color 0.3s; }
+        html.light-theme .status-bar { background: rgba(255,255,255,0.1); border-bottom: 1px solid rgba(var(--border-main), 0.2); }
+        .status-bar .time { letter-spacing: 1px; } .system-status { display: flex; align-items: center; gap: 5px; }
+        .status-indicator { width: 7px; height: 7px; background-color: var(--accent-glow); border-radius: 50%; box-shadow: 0 0 4px var(--accent-glow); animation: pulseIndicator 2s infinite; transition: background-color 0.3s, box-shadow 0.3s; }
+        .no-animations .status-indicator { animation: none !important; }
+        @keyframes pulseIndicator { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+        
+        .top-nav { display: flex; justify-content: space-between; padding: 10px 15px; align-items: center; flex-shrink: 0; border-bottom: 1px solid rgba(var(--border-main), 0.3); transition: border-color 0.3s; }
+        .system-name { font-family: var(--font-futuristic); font-size: calc(1.05rem * var(--font-scale, 1)); color: var(--primary-glow); text-shadow: 0 0 8px var(--shadow-glow); transition: color 0.3s, text-shadow 0.3s; }
+        .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle, var(--primary-glow), var(--secondary-glow)); display: flex; align-items: center; justify-content: center; border: 1px solid var(--primary-glow); box-shadow: 0 0 8px var(--shadow-glow); cursor: pointer; transition: background 0.3s, border-color 0.3s, box-shadow 0.3s; }
+        .user-avatar .user-initial { font-size: calc(0.8rem * var(--font-scale, 1)); font-weight: bold; color: var(--text-on-action-button); transition: color 0.3s; } 
+        .user-avatar svg { width: 20px; height: 20px; fill: var(--text-on-action-button); opacity: 0.9; transition: fill 0.3s; } 
+
+        .main-content-area { display: flex; flex-grow: 1; overflow: hidden; position: relative; }
+        .view { width: 100%; height: 100%; display: none; flex-direction: column; overflow: hidden; transition: opacity 0.3s, transform 0.3s; }
+        .view.active { display: flex; animation: viewFadeIn 0.4s ease-out; }
+        .no-animations .view.active { animation: none !important; }
+        @keyframes viewFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .chat-view .ai-core-container { display: flex; justify-content: center; align-items: center; padding: 5px 0; flex-shrink: 0; }
+        .ai-core-visualizer { width: 120px; height: 120px; position: relative; }
+        .ai-core-visualizer .core-sphere { width: 60px; height: 60px; background: radial-gradient(ellipse at center, var(--primary-glow) 0%, rgba(var(--primary-glow-rgb), 0.3) 40%, transparent 70%); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: corePulseHTML 3s infinite ease-in-out, coreFloatHTML 5s infinite alternate ease-in-out; box-shadow: 0 0 25px var(--primary-glow), 0 0 40px rgba(var(--primary-glow-rgb), 0.4); transition: background 0.3s, box-shadow 0.3s; }
+        .ai-core-visualizer .energy-ring { width: 100%; height: 100%; border: 1.5px solid var(--secondary-glow); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform-origin: center center; opacity: 0.7; animation: rotateRingHTML 10s linear infinite; transition: border-color 0.3s; }
+        .ai-core-visualizer .energy-ring.two { width: 140%; height: 140%; border-style: dashed; animation-duration: 15s; animation-direction: reverse; opacity: 0.5; }
+        .ai-core-visualizer .energy-ring.three { width: 180%; height: 180%; border-width: 1px; border-color: var(--accent-glow); opacity: 0.3; animation-duration: 20s; transition: border-color 0.3s; }
+        .no-animations .ai-core-visualizer .core-sphere, .no-animations .ai-core-visualizer .energy-ring { animation: none !important; }
+        @keyframes corePulseHTML {0%,100%{transform:translate(-50%,-50%) scale(1);opacity:1}50%{transform:translate(-50%,-50%) scale(1.1);opacity:.8}} 
+        @keyframes coreFloatHTML {0%,100%{transform:translate(-50%,-53%)}50%{transform:translate(-50%,-47%)}} 
+        @keyframes rotateRingHTML {from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+        .response-container { flex-grow: 1; overflow-y: auto; padding: 10px; background: var(--bg-surface-secondary); border-radius: 10px; margin: 0 10px 5px 10px; scroll-behavior: smooth; transition: background-color 0.3s; }
+        .response-container::-webkit-scrollbar { width: 4px; } .response-container::-webkit-scrollbar-thumb { background-color: var(--primary-glow); border-radius: 2px; transition: background-color 0.3s; }
+        .message-bubble { margin-bottom: 10px; padding: 8px 12px; border-radius: 12px; max-width: 85%; font-size: calc(0.9rem * var(--font-scale, 1)); line-height: 1.6; animation: fadeInMessage 0.4s ease-out; word-wrap: break-word; transition: background-color 0.3s, color 0.3s, border-color 0.3s; position: relative; padding-bottom: 28px; /* Space for actions */ }
+        .no-animations .message-bubble { animation: none !important; }
+        @keyframes fadeInMessage { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message-bubble.user { background-color: rgba(var(--accent-glow-rgb), 0.18); color: var(--accent-glow); border-left: 3px solid var(--accent-glow); text-align: left; margin-right: auto; border-radius: 12px 12px 12px 4px; }
+        html.light-theme .message-bubble.user { background-color: #fff3cd; color: #856404; border-left-color: #ffc107; }
+        .message-bubble.ai { background-color: rgba(var(--primary-glow-rgb), 0.12); color: var(--text-primary); border-right: 3px solid var(--primary-glow); text-align: right; margin-left: auto; border-radius: 12px 12px 4px 12px; }
+        html.light-theme .message-bubble.ai { background-color: #cfe2ff; color: #004085; border-right-color: #007bff; }
+        .message-bubble.system, .message-bubble.system_error { font-style: italic; color: var(--text-secondary); font-size: calc(0.75rem * var(--font-scale, 1)); text-align: center; background-color: transparent; border: none; width: 100%; max-width: 100%; padding: 4px 0; }
+        .message-bubble.system_error { color: var(--danger-glow); }
+        .message-bubble img.attached-image-preview { max-width: 100%; max-height: 150px; border-radius: 6px; margin-top: 8px; border: 1px solid rgba(var(--border-main),0.3); display: block; }
+        
+        .message-actions {
+            position: absolute;
+            bottom: 4px;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            display: flex;
+            gap: 8px;
+        }
+        .message-bubble:hover .message-actions { opacity: 1; }
+        .message-bubble.ai .message-actions { right: 8px; } 
+        .message-bubble.user .message-actions { left: 8px; } 
+
+        .action-btn { background: none; border: none; cursor: pointer; padding: 2px; display: flex; align-items: center; justify-content: center; }
+        .action-btn svg { width: 16px; height: 16px; fill: var(--text-secondary); transition: fill 0.2s; }
+        .action-btn:hover svg { fill: var(--primary-glow); }
+
+        .code-block { background-color: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-secondary); border-radius: 8px; margin: 10px 0; overflow: hidden; font-family: 'Courier New', Courier, monospace; direction: ltr; text-align: left; }
+        html.light-theme .code-block { background-color: #e9ecef; border-color: #ced4da; color: #212529; }
+
+        .code-header { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; background-color: rgba(0, 0, 0, 0.3); font-size: calc(0.8rem * var(--font-scale, 1)); color: var(--text-secondary); }
+        html.light-theme .code-header { background-color: #dde1e4; }
+
+        .code-header .language { text-transform: uppercase; font-weight: bold; color: var(--accent-glow); }
+        html.light-theme .code-header .language { color: #0056b3; }
+
+        .copy-code-btn { background-color: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); cursor: pointer; border-radius: 5px; padding: 3px 8px; font-size: calc(0.7rem * var(--font-scale, 1)); transition: all 0.2s; }
+        .copy-code-btn:hover { background-color: var(--primary-glow); color: var(--text-on-action-button); border-color: var(--primary-glow); }
+        html.light-theme .copy-code-btn:hover { background-color: var(--primary-glow); color: #fff; border-color: var(--primary-glow); }
+
+        .code-body pre { margin: 0; padding: 12px; overflow-x: auto; font-size: calc(0.85rem * var(--font-scale, 1)); }
+        .code-body code { color: var(--text-primary); white-space: pre-wrap; word-wrap: break-word; }
+        html.light-theme .code-body code { color: #212529; }
+
+        .code-body::-webkit-scrollbar { width: 6px; height: 6px; }
+        .code-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        .code-body::-webkit-scrollbar-thumb { background-color: var(--accent-glow); border-radius: 3px; }
+        html.light-theme .code-body::-webkit-scrollbar-thumb { background-color: #007bff; }
+
+        .code-preview-container { margin-top: 15px; }
+        .preview-header { 
+            font-size: calc(0.8rem * var(--font-scale, 1));
+            font-family: var(--font-futuristic);
+            color: var(--accent-glow);
+            text-align: center;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px dashed var(--border-secondary);
+        }
+        .code-preview-iframe {
+            width: 100%;
+            height: 200px; /* Default height for the preview */
+            border: 1px solid var(--border-secondary);
+            border-radius: 8px;
+            background-color: #fff; /* A neutral background for the preview content */
+        }
+
+        .input-container { padding: 8px; background: rgba(0, 0, 0, 0.2); border-top: 1px solid rgba(var(--border-main), 0.3); flex-shrink: 0; transition: background-color 0.3s, border-color 0.3s; }
+        html.light-theme .input-container { background: rgba(200,200,210,0.2); }
+        .attached-image-info-container { display: flex; justify-content: space-between; align-items: center; padding: 0 5px 5px 5px; font-size: calc(0.7rem * var(--font-scale, 1)); color: var(--text-secondary); }
+        
+        #attachedImagePreviewContainer #attachedImagePreview {
+            max-height: 45px;
+            max-width: 80px;
+            border-radius: 6px;
+            margin-left: 8px; 
+            object-fit: cover;
+            border: 1px solid var(--border-secondary);
+        }
+
+        .remove-attached-image-button { background:none; border:none; color:var(--secondary-glow); cursor:pointer; font-size:calc(0.9rem * var(--font-scale, 1)); padding: 0 5px;}
+        .cognitive-nexus-input { display: flex; align-items: flex-end; gap: 5px; }
+        
+        .cognitive-nexus-input .icon-button { background: rgba(var(--primary-glow-rgb), 0.08); border: 1px solid var(--border-secondary); cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s, transform 0.1s, border-color 0.2s, box-shadow 0.2s; }
+        .cognitive-nexus-input .icon-button:hover { background-color: rgba(var(--button-hover-bg-rgb), 0.2); border-color: var(--border-main); box-shadow: 0 0 6px -1px var(--shadow-glow); }
+        html.light-theme .cognitive-nexus-input .icon-button { background: rgba(var(--primary-glow-rgb), 0.05); border: 1px solid var(--border-secondary); }
+        html.light-theme .cognitive-nexus-input .icon-button:hover { background-color: rgba(var(--button-hover-bg-rgb), 0.15); border-color: var(--border-main); box-shadow: 0 0 6px -1px var(--shadow-glow); }
+
+        .cognitive-nexus-input .icon-button:active { transform: scale(0.9); }
+        .cognitive-nexus-input .icon-button.active-listening svg { fill: var(--primary-glow); animation: pulseIcon 1s infinite alternate; }
+        .no-animations .cognitive-nexus-input .icon-button.active-listening svg { animation: none !important; }
+        @keyframes pulseIcon { from { transform: scale(1); } to { transform: scale(1.15); } }
+        .cognitive-nexus-input .icon-button svg { width: 22px; height: 22px; fill: var(--icon-fill-default); transition: fill 0.2s; }
+        .cognitive-nexus-input .icon-button:hover svg { fill: var(--icon-fill-active); }
+        .cognitive-nexus-input textarea { flex-grow: 1; background: var(--bg-input); border: 1px solid var(--border-main); color: var(--text-primary); font-family: var(--font-primary); font-size: calc(0.9rem * var(--font-scale, 1)); padding: 10px 12px; resize: none; min-height: 40px; max-height: 90px; outline: none; border-radius: 20px; overflow-y: auto; transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
+        .cognitive-nexus-input textarea::placeholder { color: var(--text-secondary); opacity: 0.7; }
+        .send-projection-button { background: transparent; border: 1px solid var(--primary-glow); color: var(--primary-glow); border-radius: 50%; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; flex-shrink: 0; align-self: flex-end; }
+        .send-projection-button:disabled { opacity: 0.5; cursor: default; border-color: var(--text-secondary); color: var(--text-secondary); }
+        .send-projection-button:hover:not(:disabled) { background: var(--primary-glow); color: var(--text-on-action-button); box-shadow: 0 0 10px var(--shadow-glow); }
+        .send-projection-button svg { width: 18px; height: 18px; transition: fill 0.3s ease; fill: currentColor; }
+        .send-projection-button:hover:not(:disabled) svg { fill: var(--text-on-action-button); }
+
+        .control-panel { display: flex; justify-content: space-around; padding: 5px 0; border-top: 1px solid rgba(var(--border-main),0.35); background: var(--bg-control-panel); flex-shrink: 0; transition: background-color 0.3s, border-color 0.3s; }
+        .control-button { background: transparent; border: none; color: var(--text-secondary); padding: 5px 4px; border-radius: 8px; text-align: center; cursor: pointer; transition: color 0.2s, transform 0.2s; font-size: calc(0.6rem * var(--font-scale, 1)); display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; max-width: 70px; }
+        .no-animations .control-button:hover, .no-animations .control-button.active { transform: none !important; }
+        .control-button:hover, .control-button.active { color: var(--primary-glow); }
+        .control-button svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 1.5; transition: filter 0.2s, stroke 0.2s; fill:none;}
+        .control-button.active svg { filter: drop-shadow(0 0 4px var(--shadow-glow)); }
+
+        .settings-base-view, .sub-setting-view { padding: 15px; align-items: center; justify-content: flex-start; overflow-y: auto; width: 100%; height: 100%; font-size: calc(1rem * var(--font-scale, 1)); }
+        .settings-base-view h2, .sub-setting-view h2 { font-size: calc(1.4rem * var(--font-scale, 1)); color: var(--primary-glow); font-family: var(--font-futuristic); margin-bottom: 20px; text-shadow: 0 0 5px var(--shadow-glow); text-align: center; transition: color 0.3s, text-shadow 0.3s; }
+        .setting-item, .sub-setting-option { width: 100%; padding: 10px 12px; margin-bottom: 10px; background: rgba(var(--primary-glow-rgb), 0.08); border: 1px solid rgba(var(--primary-glow-rgb), 0.3); border-radius: 10px; color: var(--text-primary); font-size: calc(0.9rem * var(--font-scale, 1)); cursor: pointer; transition: background-color 0.2s ease, color 0.3s, border-color 0.3s; text-align: right; display: flex; justify-content: space-between; align-items: center; }
+        html.light-theme .setting-item, html.light-theme .sub-setting-option { background-color: rgba(var(--primary-glow-rgb), 0.05); border-color: rgba(var(--primary-glow-rgb), 0.2); }
+        .setting-item:hover, .sub-setting-option:hover { background: rgba(var(--primary-glow-rgb), 0.15); }
+        .setting-item.destructive { background: rgba(var(--danger-glow-rgb), 0.1); border-color: rgba(var(--danger-glow-rgb), 0.4); color: var(--danger-glow); } 
+        .setting-item.destructive:hover { background: rgba(var(--danger-glow-rgb), 0.2); }
+        .settings-base-view .app-version { margin-top: auto; padding-top: 15px; font-size: calc(0.7rem * var(--font-scale, 1)); color: var(--text-secondary); opacity: 0.7; text-align: center; }
+        .back-button { background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); padding: 6px 12px; border-radius: 8px; cursor: pointer; margin-bottom: 15px; font-size: calc(0.8rem * var(--font-scale, 1)); transition: all 0.2s; align-self: flex-start; }
+        .back-button:hover { border-color: var(--primary-glow); color: var(--primary-glow); }
+        .form-field { margin-bottom: 12px; width: 100%; max-width: 280px; }
+        .form-field label { display: block; margin-bottom: 4px; font-size: calc(0.8rem * var(--font-scale, 1)); color: var(--text-secondary); text-align: right; }
+        .form-field input[type="text"], .form-field input[type="password"], .form-field input[type="email"], .form-field input[type="range"], .form-field select { width: 100%; padding: 8px; font-size: calc(0.9rem * var(--font-scale, 1)); border-radius: 6px; background-color: var(--bg-input); border: 1px solid var(--border-main); color: var(--text-primary); outline: none; transition: border-color 0.2s, background-color 0.3s, color 0.3s; }
+        .form-field input:focus, .form-field select:focus { border-color: var(--primary-glow); box-shadow: 0 0 5px var(--shadow-glow); }
+        .form-field .slider-value { font-size: calc(0.75rem * var(--font-scale, 1)); color: var(--text-secondary); text-align: left; margin-top: 2px; min-width: 35px; }
+        .switch-container { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 22px; } .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(var(--primary-glow-rgb),0.2); transition: .4s; border-radius: 22px; border: 1px solid rgba(var(--primary-glow-rgb),0.4); }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: var(--text-primary); transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary-glow); } input:checked + .slider:before { transform: translateX(18px); background-color: var(--bg-main); }
+        .action-button { width: 100%; max-width: 280px; padding: 10px; font-size: calc(0.95rem * var(--font-scale, 1)); background: linear-gradient(90deg, var(--primary-glow), var(--accent-glow)); color: var(--text-on-action-button); border: none; border-radius: 8px; cursor: pointer; font-family: var(--font-futuristic); font-weight: bold; transition: opacity 0.2s, background 0.3s, color 0.3s; text-shadow: 0 0 3px rgba(var(--text-on-action-button-rgb),0.3); margin-top: 10px; }
+        html.light-theme .action-button { --text-on-action-button-rgb: 255,255,255; } 
+        .action-button:hover { opacity: 0.85; }
+        .action-button.secondary { background: transparent; border: 1px solid var(--primary-glow); color: var(--primary-glow); margin-top: 10px; }
+        .action-button:disabled { background: var(--text-secondary); opacity: 0.6; cursor: not-allowed; }
+
+
+        .emotive-resonance-indicator { position: absolute; bottom: 60px; right: 15px; width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, transparent 60%); border: 1px solid var(--text-secondary); transition: all 0.5s ease; z-index: 10; }
+        .emotive-resonance-indicator.positive { border-color: var(--accent-glow); box-shadow: 0 0 8px var(--accent-glow); }
+        .emotive-resonance-indicator.negative { border-color: var(--secondary-glow); box-shadow: 0 0 8px var(--secondary-glow); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.75); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px; transition: opacity 0.3s; }
+        .modal-content { background: var(--bg-modal); border: 1px solid var(--border-main); padding: 20px; border-radius: 15px; width: 90%; max-width: 360px; box-shadow: 0 0 30px rgba(var(--primary-glow-rgb), 0.4); text-align: right; transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s; max-height: 80vh; overflow-y: auto;}
+        .modal-content h3 { font-family: var(--font-futuristic); color: var(--primary-glow); margin-bottom: 15px; text-align: center; font-size: calc(1.1rem * var(--font-scale, 1)); transition: color 0.3s; }
+        .modal-content p { font-size: calc(0.9rem * var(--font-scale, 1)); line-height: 1.6; margin-bottom: 20px; color: var(--text-primary); transition: color 0.3s; white-space: pre-wrap; }
+        .modal-content .close-modal-button { display: block; margin: 15px auto 0; padding: 10px 25px; background: linear-gradient(90deg, var(--primary-glow), var(--accent-glow)); color: var(--text-on-action-button); border: none; border-radius: 20px; cursor: pointer; font-family: var(--font-futuristic); font-weight: bold; font-size: calc(0.9rem * var(--font-scale, 1)); transition: background 0.3s, color 0.3s; }
+        #actualImageInput { display: none; }
+        
+        #scanView {
+            padding: 0; 
+            align-items: stretch; 
+            justify-content: flex-start;
+            position: relative; 
+            background-color: #000; 
+        }
+        .scan-container {
+            width: 100%;
+            height: 100%; 
+            position: relative;
+            overflow: hidden;
+            background-color: #000; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #scanVideoFeed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+        }
+        .scan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none; 
+        }
+        .scan-window {
+            width: 70%;
+            max-width: 280px;
+            height: 50%; 
+            max-height: 200px;
+            border: 2px solid rgba(var(--primary-glow-rgb), 0.7);
+            box-shadow: 0 0 15px rgba(var(--primary-glow-rgb), 0.5);
+            position: relative;
+            overflow: hidden; 
+            background: rgba(0,0,0,0.1); 
+        }
+        .scan-line {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--danger-glow);
+            box-shadow: 0 0 10px var(--danger-glow);
+            animation: scanAnimation 2.5s linear infinite;
+        }
+        .no-animations .scan-line { animation: none !important; }
+        @keyframes scanAnimation {
+            0% { top: 0%; }
+            50% { top: 98%; }
+            100% { top: 0%; }
+        }
+        .scan-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(var(--bg-control-panel), 0.9); 
+            padding: 8px;
+            text-align: center;
+            font-size: calc(0.75rem * var(--font-scale, 1));
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(var(--border-main), 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        #locationDisplay, #scanStatus {
+             margin-bottom: 0px; 
+        }
+         #analyzeScanButton {
+            background: linear-gradient(90deg, var(--primary-glow), var(--accent-glow));
+            color: var(--text-on-action-button);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: calc(0.8rem * var(--font-scale, 1));
+            font-family: var(--font-futuristic);
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 5px; 
+            pointer-events: all; 
+        }
+        #analyzeScanButton:disabled {
+            background: var(--text-secondary);
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        #analyzeScanButton:hover:not(:disabled) {
+            opacity: 0.85;
+        }
+        .scan-instructions { 
+            color: var(--text-primary);
+            font-size: calc(0.80rem * var(--font-scale,1));
+            padding: 5px 0;
+        }
+        
+        /* Knowledge Graph Styles */
+        #knowledgeView {
+            align-items: stretch;
+            justify-content: stretch;
+            background-color: transparent;
+        }
+        #knowledgeGraphContainer {
+            flex-grow: 1;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            cursor: grab;
+        }
+        #knowledgeGraphContainer:active {
+            cursor: grabbing;
+        }
+        .graph-node text {
+            fill: var(--text-primary);
+            font-family: var(--font-primary);
+            font-size: calc(0.7rem * var(--font-scale, 1));
+            text-anchor: middle;
+            pointer-events: none; /* Make text unselectable */
+            transition: fill 0.3s;
+        }
+        .graph-link {
+            stroke: var(--border-secondary);
+            stroke-opacity: 0.6;
+            transition: stroke 0.3s;
+        }
+        .graph-node circle {
+            stroke: var(--primary-glow);
+            stroke-width: 1.5px;
+            transition: stroke 0.3s, fill 0.3s;
+        }
+        .graph-node.central-node circle {
+            stroke: var(--accent-glow);
+        }
+        .graph-node.central-node text {
+            font-family: var(--font-futuristic);
+            font-weight: bold;
+            fill: var(--accent-glow);
+            font-size: calc(0.8rem * var(--font-scale, 1));
+        }
+        .graph-node:hover circle {
+            filter: drop-shadow(0 0 5px var(--primary-glow));
+        }
+
+    </style>
+</head>
+<body class="no-animations"> 
+
+    <!-- Splash Screen -->
+    <div id="splashScreen">
+        <div class="splash-content">
+            <div class="splash-rings">
+                <div class="ring"></div>
+                <div class="ring"></div>
+                <div class="ring"></div>
+            </div>
+            <h1 class="splash-title">VIFOR AI</h1>
+        </div>
+    </div>
+
+    <div class="background-nebula"></div>
+    <div class="data-stream-particles" id="dataStreamParticlesContainer"></div>
+    <input type="file" id="actualImageInput" accept="image/*">
+
+    <div class="phone-frame">
+        <div class="phone-screen">
+            <div class="status-bar">
+                <div class="time" id="phoneTime">--:--</div>
+                <div class="system-status"><span>الإدراك</span><div class="status-indicator"></div></div>
+            </div>
+            <div class="top-nav">
+                <div class="system-name">VIFOR AI</div>
+                <div class="user-avatar" id="userAvatarButton"><span class="user-initial" id="userAvatarInitial">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+                </span></div>
+            </div>
+            
+            <div class="main-content-area" id="mainContentArea">
+                <div class="view active" id="chatView">
+                    <div class="ai-core-container"><div class="ai-core-visualizer"><div class="core-sphere"></div><div class="energy-ring"></div><div class="energy-ring two"></div><div class="energy-ring three"></div></div></div>
+                    <div class="response-container" id="responseContainer"></div>
+                </div>
+
+                <div class="view settings-base-view" id="settingsBaseView">
+                    <h2>الإعدادات الرئيسية</h2>
+                    <div class="setting-item" data-subview="accountSettingsView"><span>إعدادات الحساب</span><span class="arrow">&gt;</span></div>
+                    <div class="setting-item" data-subview="interfacePrefsView"><span>تفضيلات الواجهة</span><span class="arrow">&gt;</span></div>
+                    <div class="setting-item" data-subview="notificationsView"><span>إدارة الإشعارات</span><span class="arrow">&gt;</span></div>
+                    <div class="setting-item" data-action="login-register" id="loginRegisterSettingButton">تسجيل الدخول / إنشاء حساب</div>
+                    <div class="setting-item" data-action="about">حول التطبيق</div>
+                    <div class="setting-item destructive" data-action="logout" id="logoutSettingButton" style="display: none;">تسجيل الخروج</div>
+                    <div class="app-version">إصدار 1.0.3 (Dynamic Preview)</div>
+                </div>
+
+                <div class="view sub-setting-view" id="accountSettingsView">
+                    <button class="back-button" data-targetview="settingsBaseView">&larr; الإعدادات</button>
+                    <h2>إعدادات الحساب</h2>
+                    <div class="form-field"><label for="accSettingName">الاسم المعروض:</label><input type="text" id="accSettingName" placeholder="أدخل اسمك المعروض"></div>
+                    <div class="form-field"><label for="accSettingEmail">البريد الإلكتروني:</label><input type="email" id="accSettingEmail" placeholder="user@example.com" readonly></div>
+                    <div class="setting-item" data-action="change-password">تغيير كلمة المرور</div>
+                    <button class="action-button" id="saveAccountSettings">حفظ التغييرات</button>
+                </div>
+
+                <div class="view sub-setting-view" id="interfacePrefsView">
+                    <button class="back-button" data-targetview="settingsBaseView">&larr; الإعدادات</button>
+                    <h2>تفضيلات الواجهة</h2>
+                    <div class="sub-setting-option">
+                        <span>السمة (Theme):</span>
+                        <select id="themeSelector" style="background:var(--bg-input); color:var(--text-primary); border:1px solid var(--border-main); border-radius:5px; padding:5px 8px; font-family: var(--font-primary); font-size: calc(0.85rem * var(--font-scale,1));">
+                            <option value="system">النظام</option>
+                            <option value="dark">داكن</option>
+                            <option value="light">فاتح</option>
+                        </select>
+                    </div>
+                     <div class="sub-setting-option">
+                        <label for="fontSizeSlider" style="flex-grow: 1; text-align: right; margin-left: 10px;">حجم الخط:</label>
+                        <input type="range" min="80" max="130" value="100" class="slider-control" id="fontSizeSlider" style="flex-grow: 2; accent-color: var(--primary-glow);">
+                        <span id="fontSizeValue" class="slider-value">100%</span>
+                    </div>
+                    <div class="sub-setting-option">
+                        <span>تفعيل الرسوم المتحركة:</span>
+                        <label class="switch"><input type="checkbox" id="animationsToggle"><span class="slider"></span></label>
+                    </div>
+                </div>
+
+                <div class="view sub-setting-view" id="notificationsView">
+                    <button class="back-button" data-targetview="settingsBaseView">&larr; الإعدادات</button>
+                    <h2>إدارة الإشعارات</h2>
+                    <div class="sub-setting-option"><span>إشعارات الرسائل الجديدة:</span><label class="switch"><input type="checkbox" id="msgNotificationsToggle" checked><span class="slider"></span></label></div>
+                    <div class="sub-setting-option"><span>تحديثات النظام الهامة:</span><label class="switch"><input type="checkbox" id="systemUpdatesToggle" checked><span class="slider"></span></label></div>
+                    <div class="sub-setting-option"><span>تنبيهات الأنشطة المقترحة:</span><label class="switch"><input type="checkbox" id="activityAlertsToggle"><span class="slider"></span></label></div>
+                </div>
+                
+                <div class="view login-view" id="loginView">
+                    <button class="back-button" data-targetview="settingsBaseView" id="backToSettingsFromLogin" style="display:none;">&larr; الإعدادات</button>
+                    <h2 id="loginViewTitle">تسجيل الدخول</h2>
+                    <form id="loginForm"><div class="form-field"><label for="emailInput">البريد الإلكتروني</label><input type="email" id="emailInput" required></div><div class="form-field"><label for="passwordInput">كلمة المرور</label><input type="password" id="passwordInput" required></div><button type="submit" class="action-button" id="loginSubmitButton">تسجيل الدخول</button><button type="button" class="action-button secondary" id="switchToRegisterButton">ليس لديك حساب؟ إنشاء جديد</button></form>
+                    <form id="registerForm" style="display:none;"><div class="form-field"><label for="registerNameInput">الاسم</label><input type="text" id="registerNameInput" required></div><div class="form-field"><label for="registerEmailInput">البريد الإلكتروني</label><input type="email" id="registerEmailInput" required></div><div class="form-field"><label for="registerPasswordInput">كلمة المرور</label><input type="password" id="registerPasswordInput" required></div><button type="submit" class="action-button" id="registerSubmitButton">إنشاء حساب</button><button type="button" class="action-button secondary" id="switchToLoginButton">لديك حساب بالفعل؟ تسجيل الدخول</button></form>
+                </div>
+
+                <div class="view" id="scanView">
+                    <div class="scan-container">
+                        <video id="scanVideoFeed" playsinline autoplay muted></video>
+                        <div class="scan-overlay">
+                            <div class="scan-window">
+                                <div class="scan-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="scan-info">
+                        <div class="scan-instructions">وجّه الكاميرا نحو العنصر للمسح</div>
+                        <div id="scanStatus">جاري تهيئة الكاميرا...</div>
+                        <div id="locationDisplay">البحث عن الموقع...</div>
+                        <button id="analyzeScanButton" disabled>التقاط وتحليل ✨</button>
+                    </div>
+                </div>
+
+                <div class="view" id="knowledgeView">
+                    <svg id="knowledgeGraphContainer"></svg>
+                </div>
+            </div>
+            
+            <div class="input-container">
+                <div id="attachedImagePreviewContainer" class="attached-image-info-container" style="display: none;"><img id="attachedImagePreview" src="#" alt="معاينة"><span id="attachedImageName"></span><button id="removeAttachedImage" class="remove-attached-image-button">&times;</button></div>
+                <div class="cognitive-nexus-input">
+                    <button class="icon-button" id="imageUploadButton" title="إرسال صورة">
+                        <svg viewBox="0 0 24 24"><path d="M19 7c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V7zm-3.17 6.42l-2.58-3.22c-.2-.25-.58-.25-.78 0l-1.75 2.18L9.21 11.1c-.25-.31-.69-.31-.94 0l-1.27 1.58V7h10v6.42z" fill="currentColor"></path></svg>
+                    </button>
+                    <button class="icon-button" id="voiceInputButton" title="إدخال صوتي">
+                        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z" fill="currentColor"></path></svg>
+                    </button>
+                    <textarea id="cognitiveInput" placeholder="اسأل فيفور..." rows="1"></textarea>
+                    <button class="send-projection-button" id="sendProjectionButton" disabled>
+                        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="currentColor"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <button class="control-button active" data-view="chatView" title="دردشة">
+                    <svg viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-3.86 8.25-8.625 8.25S3.75 16.556 3.75 12 7.61 3.75 12.375 3.75 21 7.444 21 12z"></path></svg>
+                    <span>دردشة</span>
+                </button>
+                <button class="control-button" data-view="scanView" title="مسح">
+                    <svg viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h14.25c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18V4.875z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M12 9.75v4.5m4.5-4.5v4.5m-9-4.5v4.5M3.75 7.5h16.5M3.75 12h16.5m-16.5 4.5h16.5"></path><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"></circle></svg>
+                    <span>مسح</span>
+                </button>
+                <button class="control-button" data-view="knowledgeView" title="معرفة">
+                     <svg viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006.042 12c-1.304 0-2.505-.406-3.489-1.088m0 0A8.967 8.967 0 0112 3c1.304 0 2.505.406 3.489 1.088m0 0A8.967 8.967 0 0117.958 12c1.304 0 2.505-.406 3.489-1.088m-6.978 8.176A8.967 8.967 0 0012 21c-1.304 0-2.505-.406-3.489-1.088m0 0A8.967 8.967 0 016.042 12m5.916 9.084a1.5 1.5 0 01-2.832 0M12 17.25a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M12 3c-2.488 0-4.5 2.012-4.5 4.5S9.512 12 12 12s4.5-2.012 4.5-4.5S14.488 3 12 3z"></path></svg>
+                    <span>معرفة</span>
+                </button>
+                <button class="control-button" data-view="settingsBaseView" title="إعدادات">
+                    <svg viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-1.003 1.11-.952l2.176.326a1.125 1.125 0 01.971 1.255v2.286a1.125 1.125 0 01-.641.99l-2.176.87a1.125 1.125 0 01-1.319-.51l-.841-1.556a1.125 1.125 0 01.321-1.664l2.176-1.088z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"></path></svg>
+                    <span>إعدادات</span>
+                </button>
+            </div>
+        </div>
+        <div class="emotive-resonance-indicator" id="emotiveResonanceIndicator"></div>
+    </div>
+
+    <div class="modal-overlay" id="infoModal">
+        <div class="modal-content"><h3 id="modalTitleElement">معلومات النظام</h3><p id="modalTextElement">هنا سيتم عرض معلومات مفصلة.</p><button class="close-modal-button" id="closeModalButton">إغلاق</button></div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Splash Screen Logic ---
+        const splashScreen = document.getElementById('splashScreen');
+        if (splashScreen) {
+            setTimeout(() => {
+                splashScreen.classList.add('hidden');
+                setTimeout(() => {
+                    if (splashScreen.parentNode) {
+                       splashScreen.parentNode.removeChild(splashScreen);
+                    }
+                }, 800); 
+            }, 2000); 
+        }
+
+        // --- DOM Element References ---
+        const htmlElement = document.documentElement;
+        const bodyElement = document.body;
+        const phoneTimeElement = document.getElementById('phoneTime');
+        const dataStreamContainer = document.getElementById('dataStreamParticlesContainer');
+        const responseContainer = document.getElementById('responseContainer');
+        const cognitiveInput = document.getElementById('cognitiveInput');
+        const sendProjectionButton = document.getElementById('sendProjectionButton');
+        const emotiveResonanceIndicator = document.getElementById('emotiveResonanceIndicator');
+        const imageUploadButton = document.getElementById('imageUploadButton');
+        const actualImageInput = document.getElementById('actualImageInput');
+        const attachedImagePreviewContainer = document.getElementById('attachedImagePreviewContainer');
+        const attachedImagePreview = document.getElementById('attachedImagePreview');
+        const attachedImageNameSpan = document.getElementById('attachedImageName');
+        const removeAttachedImageButton = document.getElementById('removeAttachedImage');
+        const voiceInputButton = document.getElementById('voiceInputButton');
+        const userAvatarButton = document.getElementById('userAvatarButton');
+        const userAvatarInitial = document.getElementById('userAvatarInitial');
+        const infoModal = document.getElementById('infoModal');
+        const modalTitleElement = document.getElementById('modalTitleElement');
+        const modalTextElement = document.getElementById('modalTextElement');
+        const closeModalButton = document.getElementById('closeModalButton');
+        const controlButtons = document.querySelectorAll('.control-panel .control-button');
+        const mainContentArea = document.getElementById('mainContentArea');
+        const views = mainContentArea.querySelectorAll('.view');   
+        const settingsBaseView = document.getElementById('settingsBaseView');
+        const loginView = document.getElementById('loginView');
+        const loginRegisterSettingButton = document.getElementById('loginRegisterSettingButton');
+        const logoutSettingButton = document.getElementById('logoutSettingButton');
+        const backToSettingsFromLogin = document.getElementById('backToSettingsFromLogin');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const loginViewTitle = document.getElementById('loginViewTitle');
+        const switchToRegisterButton = document.getElementById('switchToRegisterButton');
+        const switchToLoginButton = document.getElementById('switchToLoginButton');
+        const accSettingNameInput = document.getElementById('accSettingName');
+        const accSettingEmailInput = document.getElementById('accSettingEmail');
+        const saveAccountSettingsButton = document.getElementById('saveAccountSettings');
+        const themeSelector = document.getElementById('themeSelector');
+        const fontSizeSlider = document.getElementById('fontSizeSlider');
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        const animationsToggle = document.getElementById('animationsToggle');
+        const msgNotificationsToggle = document.getElementById('msgNotificationsToggle');
+        const systemUpdatesToggle = document.getElementById('systemUpdatesToggle');
+        const activityAlertsToggle = document.getElementById('activityAlertsToggle');
+        const scanViewElement = document.getElementById('scanView'); 
+        const scanVideoFeed = document.getElementById('scanVideoFeed');
+        const locationDisplay = document.getElementById('locationDisplay');
+        const scanStatus = document.getElementById('scanStatus');
+        const analyzeScanButton = document.getElementById('analyzeScanButton');
+
+        // --- App State & Config ---
+        let emotiveState = 'neutral';
+        let currentUser = null;   
+        let attachedFile = null; 
+        let currentCameraStream = null; 
+        let currentViewId = 'chatView';
+        let isKnowledgeGraphInitialized = false;
+        const apiKey = "AIzaSyBcuRKFTsRl0cELvvK6BjCbFQ6arHaIccU"; // IMPORTANT: API key is managed by the Canvas environment.
+
+        // --- Voice Recognition Setup ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+        let isListening = false;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false; // Process single utterance
+            recognition.lang = 'ar-SA'; // Set language to Arabic
+            recognition.interimResults = false; // We only want the final result
+        }
+
+        // --- Initial Setup ---
+        function initializeApp() {
+            updatePhoneTime(); 
+            setInterval(updatePhoneTime, 30000);
+            createDataParticles(); 
+            addMessageToChat("مرحباً بك في VIFOR AI، كيف يمكنني مساعدتك؟", "ai");
+            updateLoginStateUI();
+            loadPreferences(); 
+            attachEventListeners();
+            if (recognition) {
+                attachRecognitionEventListeners();
+            }
+        }
+
+        function updatePhoneTime() { phoneTimeElement.textContent = `${new Date().getHours().toString().padStart(2, '0')}:${new Date().getMinutes().toString().padStart(2, '0')}`; }
+        
+        function createDataParticles() {
+            if (bodyElement.classList.contains('no-animations') || !dataStreamContainer) return;
+            dataStreamContainer.innerHTML = ''; 
+            const particleCount = 20;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.width = `${Math.random() * 3 + 1}px`;
+                particle.style.height = particle.style.width;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                particle.style.animationDuration = `${Math.random() * 3 + 3}s`;
+                dataStreamContainer.appendChild(particle);
+            }
+        }
+        
+        // --- Gemini API Interaction ---
+        async function callGeminiAPI(parts, thinkingBubble, mode = 'chat') {
+            const payload = { contents: [{ role: "user", parts: parts }] };
+            const currentApiKey = typeof apiKey !== 'undefined' ? apiKey : "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${currentApiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (thinkingBubble) thinkingBubble.remove();
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: { message: "فشل في تحليل استجابة الخطأ من الواجهة البرمجية." } }));
+                    console.error("Gemini API Error Data:", errorData);
+                    const errorMsg = errorData?.error?.message || `خطأ في الاتصال بالواجهة البرمجية: ${response.status}`;
+                    if (mode === 'chat') addMessageToChat(`عذراً، حدث خطأ أثناء معالجة طلبك: ${errorMsg}`, 'system_error');
+                    else if (mode === 'scan') showInfoModal("خطأ في التحليل", `عذراً، لم أتمكن من تحليل الصورة: ${errorMsg}`);
+                    return;
+                }
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    updateEmotiveState(text);
+                    if (mode === 'chat') addMessageToChat(text, 'ai');
+                    else if (mode === 'scan') showInfoModal("✨ تحليل المسح البيئي", text);
+                } else {
+                    console.warn("Gemini API - Unexpected response or empty candidates:", result);
+                    const fallbackMsg = "لم أتلق ردًا واضحًا من النموذج. قد يكون بسبب قيود الأمان أو عدم وجود محتوى.";
+                    if (mode === 'chat') addMessageToChat(fallbackMsg, 'system_error');
+                    else if (mode === 'scan') showInfoModal("خطأ في التحليل", fallbackMsg);
+                }
+            } catch (error) {
+                console.error("Fetch API or JSON Parsing Error:", error);
+                if (thinkingBubble) thinkingBubble.remove();
+                const errorMsg = "حدث خطأ غير متوقع أثناء الاتصال بالخادم أو معالجة الرد.";
+                if (mode === 'chat') addMessageToChat(errorMsg, 'system_error');
+                else if (mode === 'scan') showInfoModal("خطأ فادح", errorMsg);
+            } finally {
+                 if (mode === 'scan' && analyzeScanButton) {
+                    analyzeScanButton.disabled = !(currentCameraStream && scanVideoFeed && scanVideoFeed.readyState >= scanVideoFeed.HAVE_METADATA); 
+                    analyzeScanButton.textContent = 'التقاط وتحليل ✨';
+                }
+            }
+        }
+
+        // --- Emotive Resonance Indicator ---
+        function updateEmotiveState(text) {
+            if (!emotiveResonanceIndicator) return;
+            const positiveKeywords = ['ممتاز', 'رائع', 'عظيم', 'بالتأكيد', 'نعم', 'مساعدة', 'سعيد', 'يمكنك', 'بالطبع'];
+            const negativeKeywords = ['عذراً', 'آسف', 'للأسف', 'خطأ', 'فشل', 'لا أستطيع', 'لكن', 'غير قادر'];
+            text = text.toLowerCase();
+            let newState = 'neutral';
+
+            if (positiveKeywords.some(keyword => text.includes(keyword))) newState = 'positive';
+            else if (negativeKeywords.some(keyword => text.includes(keyword))) newState = 'negative';
+            
+            if (newState !== emotiveState) {
+                emotiveState = newState;
+                emotiveResonanceIndicator.classList.remove('positive', 'negative');
+                if (emotiveState !== 'neutral') emotiveResonanceIndicator.classList.add(emotiveState);
+                setTimeout(() => {
+                    emotiveResonanceIndicator.classList.remove('positive', 'negative');
+                    emotiveState = 'neutral';
+                }, 4000);
+            }
+        }
+
+        // --- Environmental Scan Functions ---
+        async function startEnvironmentalScan() {
+            if (!scanViewElement || !scanStatus || !locationDisplay || !scanVideoFeed || !analyzeScanButton) return;
+            scanStatus.textContent = "جاري تهيئة الكاميرا...";
+            scanStatus.classList.remove('error'); 
+            locationDisplay.textContent = "البحث عن الموقع...";
+            analyzeScanButton.disabled = true;
+            analyzeScanButton.textContent = 'جاري التهيئة...';
+
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                try {
+                    currentCameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                    scanVideoFeed.srcObject = currentCameraStream;
+                    scanVideoFeed.onloadedmetadata = () => {
+                         scanVideoFeed.play().catch(e => console.error("Video play error:", e));
+                        scanStatus.textContent = "الكاميرا نشطة.";
+                        analyzeScanButton.disabled = false;
+                        analyzeScanButton.textContent = 'التقاط وتحليل ✨';
+                    };
+                } catch (err) {
+                    console.error("getUserMedia error:", err);
+                    scanStatus.classList.add('error');
+                    analyzeScanButton.disabled = true;
+                    analyzeScanButton.textContent = 'خطأ بالكاميرا';
+                     if (err.name === "NotAllowedError") scanStatus.textContent = "تم رفض إذن الكاميرا.";
+                     else if (err.name === "NotFoundError") scanStatus.textContent = "لم يتم العثور على كاميرا.";
+                     else scanStatus.textContent = `خطأ بالكاميرا: ${err.name}.`;
+                }
+            } else {
+                scanStatus.textContent = "المتصفح لا يدعم الوصول للكاميرا.";
+                scanStatus.classList.add('error');
+                analyzeScanButton.disabled = true;
+                analyzeScanButton.textContent = 'الكاميرا غير مدعومة';
+            }
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => locationDisplay.textContent = `الموقع: ${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)}`,
+                    (err) => locationDisplay.textContent = "تعذر تحديد الموقع."
+                );
+            } else {
+                locationDisplay.textContent = "المتصفح لا يدعم تحديد الموقع.";
+            }
+        }
+
+        function stopEnvironmentalScan() {
+            if (currentCameraStream) {
+                currentCameraStream.getTracks().forEach(track => track.stop());
+                currentCameraStream = null;
+                if(scanVideoFeed) scanVideoFeed.srcObject = null;
+            }
+            if(scanStatus) scanStatus.textContent = "تم إيقاف المسح البيئي.";
+            if(locationDisplay) locationDisplay.textContent = "الموقع غير محدد.";
+            if(analyzeScanButton) {
+                analyzeScanButton.disabled = true;
+                analyzeScanButton.textContent = 'التقاط وتحليل ✨';
+            }
+        }
+        
+        async function handleScanAnalysis() {
+            if (!currentCameraStream || !scanVideoFeed || scanVideoFeed.readyState < scanVideoFeed.HAVE_METADATA) {
+                showInfoModal("خطأ", "الكاميرا ليست جاهزة. حاول مرة أخرى.");
+                return;
+            }
+            analyzeScanButton.disabled = true;
+            analyzeScanButton.textContent = 'جاري الالتقاط...';
+
+            const canvas = document.createElement('canvas');
+            canvas.width = scanVideoFeed.videoWidth;
+            canvas.height = scanVideoFeed.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(scanVideoFeed, 0, 0, canvas.width, canvas.height);
+            let base64ImageData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+            
+            if (!base64ImageData) {
+                 showInfoModal("خطأ", "فشل في التقاط الصورة.");
+                 analyzeScanButton.disabled = false;
+                 analyzeScanButton.textContent = 'التقاط وتحليل ✨';
+                 return;
+            }
+            
+            analyzeScanButton.textContent = 'جاري التحليل...';
+            const parts = [
+                { text: "حلل هذه الصورة البيئية. صف العناصر الرئيسية، الأجواء العامة، وأي تفاصيل ملحوظة." },
+                { inlineData: { mimeType: "image/jpeg", data: base64ImageData } }
+            ];
+            callGeminiAPI(parts, null, 'scan'); 
+        }
+
+        // --- View Switching ---
+        function showView(targetViewId) {
+            const previousViewId = currentViewId;
+            currentViewId = targetViewId;
+
+            views.forEach(view => view.classList.remove('active'));
+            const targetViewElement = document.getElementById(targetViewId);
+            if (targetViewElement) targetViewElement.classList.add('active');
+            else document.getElementById('chatView').classList.add('active');
+            
+            const isSubSettingOrLogin = targetViewId.includes('SettingsView') || targetViewId.includes('PrefsView') || targetViewId.includes('NotificationsView') || targetViewId === 'loginView';
+            const targetTabForHighlight = isSubSettingOrLogin ? 'settingsBaseView' : targetViewId;
+            controlButtons.forEach(button => button.classList.toggle('active', button.dataset.view === targetTabForHighlight));
+            
+            if (backToSettingsFromLogin) backToSettingsFromLogin.style.display = (targetViewId === 'loginView' && document.querySelector('.control-button[data-view="settingsBaseView"].active')) ? 'block' : 'none'; 
+            
+            if (targetViewId === 'scanView' && previousViewId !== 'scanView') startEnvironmentalScan();
+            else if (previousViewId === 'scanView' && targetViewId !== 'scanView') stopEnvironmentalScan();
+
+            if (targetViewId === 'knowledgeView' && !isKnowledgeGraphInitialized) {
+                initializeKnowledgeNetwork();
+                isKnowledgeGraphInitialized = true;
+            }
+        }
+        
+        // --- Modal ---
+        function showInfoModal(title, text) { 
+            if (!infoModal || !modalTitleElement || !modalTextElement) return;
+            modalTitleElement.textContent = title; 
+            modalTextElement.innerHTML = text.replace(/\n/g, '<br>'); 
+            infoModal.style.display = 'flex'; 
+        }
+
+        // --- Authentication ---
+        function updateLoginStateUI() { 
+            if (!userAvatarInitial || !loginRegisterSettingButton || !logoutSettingButton) return;
+            if (currentUser) {   
+                userAvatarInitial.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : '؟';   
+                if (accSettingNameInput) accSettingNameInput.value = currentUser.name;
+                if (accSettingEmailInput) accSettingEmailInput.value = currentUser.email;
+                loginRegisterSettingButton.style.display = 'none'; 
+                logoutSettingButton.style.display = 'flex'; 
+            } else {   
+                userAvatarInitial.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>`;   
+                if (accSettingNameInput) accSettingNameInput.value = '';
+                if (accSettingEmailInput) accSettingEmailInput.value = '';
+                loginRegisterSettingButton.style.display = 'flex'; 
+                logoutSettingButton.style.display = 'none';   
+            }
+        }
+        
+        // --- Chat & Message Functions ---
+        function addMessageToChat(text, sender, isThinking = false, imageUrl = null) {
+            if (!responseContainer) return null;
+
+            const messageBubble = document.createElement('div');
+            messageBubble.classList.add('message-bubble', sender);
+            if (isThinking) {
+                messageBubble.style.fontStyle = 'italic';
+                messageBubble.style.paddingBottom = '10px';
+            }
+            
+            const contentContainer = document.createElement('div');
+            contentContainer.classList.add('message-content');
+            
+            if (sender === 'ai' && text.includes('```')) {
+                const fragments = text.split(/(```[\w\s-]*\n[\s\S]*?\n```)/g);
+                fragments.forEach(fragment => {
+                    if (!fragment) return;
+                    const codeBlockMatch = fragment.match(/^```([\w\s-]*)\n([\s\S]*?)\n```$/);
+                    if (codeBlockMatch) {
+                        const language = codeBlockMatch[1].trim() || 'code';
+                        const code = codeBlockMatch[2].trim();
+                        
+                        // Create the code block container
+                        const codeBlockContainer = document.createElement('div');
+                        codeBlockContainer.className = 'code-block';
+                        const codeHeader = document.createElement('div');
+                        codeHeader.className = 'code-header';
+                        const langSpan = document.createElement('span');
+                        langSpan.className = 'language';
+                        langSpan.textContent = language;
+                        const copyCodeBtn = document.createElement('button');
+                        copyCodeBtn.className = 'copy-code-btn';
+                        copyCodeBtn.textContent = 'نسخ';
+                        copyCodeBtn.dataset.code = code;
+                        codeHeader.appendChild(langSpan);
+                        codeHeader.appendChild(copyCodeBtn);
+                        const codeBody = document.createElement('div');
+                        codeBody.className = 'code-body';
+                        const pre = document.createElement('pre');
+                        const codeEl = document.createElement('code');
+                        codeEl.textContent = code;
+                        pre.appendChild(codeEl);
+                        codeBody.appendChild(pre);
+                        codeBlockContainer.appendChild(codeHeader);
+                        codeBlockContainer.appendChild(codeBody);
+                        contentContainer.appendChild(codeBlockContainer);
+
+                        // If the language is html, add a live preview iframe
+                        if (language.toLowerCase() === 'html') {
+                            const previewContainer = document.createElement('div');
+                            previewContainer.className = 'code-preview-container';
+                            const previewHeader = document.createElement('h4');
+                            previewHeader.className = 'preview-header';
+                            previewHeader.textContent = 'معاينة الواجهة';
+                            const iframe = document.createElement('iframe');
+                            iframe.className = 'code-preview-iframe';
+                            iframe.srcdoc = code;
+                            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+                            iframe.setAttribute('frameborder', '0');
+                            
+                            previewContainer.appendChild(previewHeader);
+                            previewContainer.appendChild(iframe);
+                            contentContainer.appendChild(previewContainer);
+                        }
+
+                    } else {
+                        const textSpan = document.createElement('span');
+                        textSpan.innerHTML = fragment.replace(/\n/g, '<br>');
+                        contentContainer.appendChild(textSpan);
+                    }
+                });
+            } else {
+                const textSpan = document.createElement('span');
+                textSpan.innerHTML = text.replace(/\n/g, '<br>');
+                contentContainer.appendChild(textSpan);
+            }
+            
+            messageBubble.appendChild(contentContainer);
+
+            if (imageUrl) {
+                const imgPreview = document.createElement('img');
+                imgPreview.src = imageUrl;
+                imgPreview.classList.add('attached-image-preview');
+                messageBubble.appendChild(imgPreview);
+            }
+            
+            if (!isThinking) {
+                const actionsContainer = document.createElement('div');
+                actionsContainer.className = 'message-actions';
+                if (sender === 'user') {
+                    const editButton = document.createElement('button');
+                    editButton.className = 'action-btn edit-btn';
+                    editButton.title = 'تعديل وإعادة الإرسال';
+                    editButton.innerHTML = `<svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path></svg>`;
+                    actionsContainer.appendChild(editButton);
+                } else if (sender === 'ai') {
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'action-btn copy-btn';
+                    copyButton.title = 'نسخ النص';
+                    copyButton.innerHTML = `<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"></path></svg>`;
+                    actionsContainer.appendChild(copyButton);
+                }
+                if (actionsContainer.hasChildNodes()) messageBubble.appendChild(actionsContainer);
+            }
+           
+            responseContainer.appendChild(messageBubble);
+            responseContainer.scrollTop = responseContainer.scrollHeight;
+            return messageBubble;
+        }
+
+        async function handleSendMessage() { 
+            const query = cognitiveInput.value.trim(); 
+            if (!query && !attachedFile) return; 
+            
+            let userMessageImageUrl = attachedFile ? URL.createObjectURL(attachedFile) : null;
+            addMessageToChat(query, 'user', false, userMessageImageUrl); 
+            
+            const thinkingBubble = addMessageToChat("<i>✨ فيفور يكتب الآن...</i>", "system", true);
+            
+            const parts = [];
+            if (query) parts.push({ text: query });
+
+            if (attachedFile) {
+                try {
+                    const base64ImageData = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(attachedFile);
+                    });
+                    parts.push({ inlineData: { mimeType: attachedFile.type, data: base64ImageData } });
+                    await callGeminiAPI(parts, thinkingBubble, 'chat');
+                } catch (fileReadError) {
+                    console.error("Error processing file:", fileReadError);
+                    if (thinkingBubble) thinkingBubble.remove();
+                    addMessageToChat("خطأ في معالجة الصورة المرفقة.", "system_error");
+                }
+            } else {
+                 await callGeminiAPI(parts, thinkingBubble, 'chat');
+            }
+            
+            cognitiveInput.value = ''; 
+            cognitiveInput.style.height = 'auto'; 
+            sendProjectionButton.disabled = true; 
+            clearAttachedImage(); 
+        }
+        
+        function clearAttachedImage() { 
+            attachedFile = null; 
+            if(attachedImagePreview) attachedImagePreview.src = "#"; 
+            if(attachedImageNameSpan) attachedImageNameSpan.textContent = ""; 
+            if(attachedImagePreviewContainer) attachedImagePreviewContainer.style.display = 'none'; 
+            if(sendProjectionButton && cognitiveInput) sendProjectionButton.disabled = cognitiveInput.value.trim() === ''; 
+        }
+
+        // --- Voice Input Handling ---
+        function handleVoiceInput() {
+            if (!recognition) {
+                showInfoModal("ميزة غير مدعومة", "عذراً، متصفحك لا يدعم ميزة التعرف على الصوت.");
+                return;
+            }
+
+            if (isListening) {
+                recognition.stop();
+                return;
+            }
+            
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error("Speech recognition start error:", error);
+                showInfoModal("خطأ في الصوت", "لم يتمكن من بدء جلسة الاستماع. قد تحتاج إلى منح إذن الميكروفون.");
+            }
+        }
+
+        function attachRecognitionEventListeners() {
+            let listeningMessage = null;
+
+            recognition.onstart = () => {
+                isListening = true;
+                voiceInputButton.classList.add('active-listening');
+                voiceInputButton.title = "أوقف الاستماع";
+                listeningMessage = addMessageToChat("<i>النظام يستمع...</i>", "system", true);
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                voiceInputButton.classList.remove('active-listening');
+                voiceInputButton.title = "إدخال صوتي";
+                if (listeningMessage) {
+                    listeningMessage.remove();
+                    listeningMessage = null;
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Speech Recognition Error:", event.error);
+                let errorMessage;
+                if (event.error === 'no-speech') {
+                    errorMessage = "لم أتمكن من سماع أي شيء. حاول مرة أخرى.";
+                } else if (event.error === 'not-allowed') {
+                    errorMessage = "تم رفض إذن الوصول إلى الميكروفون.";
+                } else {
+                    errorMessage = `حدث خطأ في التعرف على الصوت: ${event.error}`;
+                }
+                addMessageToChat(errorMessage, 'system_error');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                cognitiveInput.value = transcript;
+                // Trigger input event to enable send button
+                cognitiveInput.dispatchEvent(new Event('input', { bubbles: true }));
+                // Automatically send the message
+                if (!sendProjectionButton.disabled) {
+                    sendProjectionButton.click();
+                }
+            };
+        }
+
+        // --- UI Preferences ---
+        function applyTheme(theme) {
+            if (!htmlElement || !themeSelector) return;
+            htmlElement.classList.remove('light-theme', 'dark-theme'); 
+            if (theme === 'light' || (theme === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+                htmlElement.classList.add('light-theme');
+            } else {
+                htmlElement.classList.add('dark-theme');
+            }
+            themeSelector.value = theme; 
+            localStorage.setItem('viforTheme', theme);
+        }
+
+        function applyFontSize(sizePercentage) {
+            if(!bodyElement || !fontSizeValue) return;
+            bodyElement.style.setProperty('--font-scale', sizePercentage / 100);
+            fontSizeValue.textContent = `${sizePercentage}%`;
+            localStorage.setItem('viforFontSize', sizePercentage);
+        }
+
+        function applyAnimations(enabled) {
+            if(!bodyElement || !animationsToggle) return;
+            bodyElement.classList.toggle('no-animations', !enabled);
+            if (enabled) createDataParticles();
+            else if(dataStreamContainer) dataStreamContainer.innerHTML = '';
+            animationsToggle.checked = enabled;
+            localStorage.setItem('viforAnimations', enabled);
+        }
+        
+        function loadPreferences() {
+            applyTheme(localStorage.getItem('viforTheme') || 'system');
+            applyFontSize(parseInt(localStorage.getItem('viforFontSize')) || 100);
+            applyAnimations(localStorage.getItem('viforAnimations') !== 'false');
+
+            if (fontSizeSlider) fontSizeSlider.value = parseInt(localStorage.getItem('viforFontSize')) || 100;
+            if (msgNotificationsToggle) msgNotificationsToggle.checked = localStorage.getItem('viforMsgNotifs') !== 'false';
+            if (systemUpdatesToggle) systemUpdatesToggle.checked = localStorage.getItem('viforSysNotifs') !== 'false';
+            if (activityAlertsToggle) activityAlertsToggle.checked = localStorage.getItem('viforActNotifs') === 'true';
+
+            const storedUser = localStorage.getItem('viforUser');
+            if (storedUser) {
+                try {
+                    currentUser = JSON.parse(storedUser);
+                } catch(e) {
+                    console.error("Error parsing stored user:", e);
+                    localStorage.removeItem('viforUser'); 
+                    currentUser = null;
+                }
+                updateLoginStateUI();
+            }
+        }
+        
+        // --- Knowledge Network (D3.js) ---
+        function initializeKnowledgeNetwork() {
+            const graphContainer = d3.select('#knowledgeGraphContainer');
+            if (graphContainer.empty()) return;
+
+            const width = graphContainer.node().clientWidth;
+            const height = graphContainer.node().clientHeight;
+            
+            const knowledgeData = {
+                nodes: [
+                    { id: 'vifor_ai', name: 'VIFOR AI', isCentral: true, description: 'المحور المركزي للنظام، يمثل الذكاء الاصطناعي الأساسي.'},
+                    { id: 'nn', name: 'الشبكات العصبية', description: 'نماذج حسابية مستوحاة من الدماغ البشري.' },
+                    { id: 'deep_learning', name: 'التعلم العميق', description: 'فرع من التعلم الآلي يستخدم شبكات عصبية متعددة الطبقات.' },
+                    { id: 'nlp', name: 'معالجة اللغات', description: 'تمكين الكمبيوتر من فهم وتوليد اللغة البشرية.' },
+                    { id: 'computer_vision', name: 'الرؤية الحاسوبية', description: 'تمكين الآلات من "رؤية" وتفسير المعلومات المرئية.' },
+                    { id: 'generative_ai', name: 'الذكاء التوليدي', description: 'إنشاء محتوى جديد وأصلي، مثل النصوص والصور.' },
+                    { id: 'llm', name: 'النماذج اللغوية', description: 'نماذج تعلم عميق ضخمة مدربة على كميات هائلة من النصوص.' }
+                ],
+                links: [
+                    { source: 'vifor_ai', target: 'nn' }, { source: 'vifor_ai', target: 'deep_learning' },
+                    { source: 'vifor_ai', target: 'nlp' }, { source: 'vifor_ai', target: 'computer_vision' },
+                    { source: 'vifor_ai', target: 'generative_ai' }, { source: 'deep_learning', target: 'llm' },
+                    { source: 'nlp', target: 'llm' }
+                ]
+            };
+
+            const simulation = d3.forceSimulation(knowledgeData.nodes)
+                .force("link", d3.forceLink(knowledgeData.links).id(d => d.id).distance(width / 4))
+                .force("charge", d3.forceManyBody().strength(-200))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+
+            graphContainer.selectAll("*").remove(); // Clear previous graph
+            const g = graphContainer.append("g");
+
+            const link = g.append("g").selectAll("line").data(knowledgeData.links).join("line").attr("class", "graph-link");
+            const node = g.append("g").selectAll("g").data(knowledgeData.nodes).join("g").attr("class", d => d.isCentral ? "graph-node central-node" : "graph-node").call(d3.drag().on("start",dragstarted).on("drag",dragged).on("end",dragended));
+            node.append("circle").attr("r", d => d.isCentral ? 35 : 20).attr("fill", d => d.isCentral ? "rgba(var(--accent-glow-rgb), 0.1)" : "rgba(var(--primary-glow-rgb), 0.1)").style("cursor", "pointer").on("click", (event, d) => showInfoModal(d.name, d.description));
+            node.append("text").text(d => d.name).attr("dy", "0.3em").attr("y", d => d.isCentral ? 0 : -30);
+
+            simulation.on("tick", () => {
+                link.attr("x1", d => d.source.x).attr("y1", d => d.source.y).attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+                node.attr("transform", d => `translate(${d.x},${d.y})`);
+            });
+            
+            graphContainer.call(d3.zoom().extent([[0, 0], [width, height]]).scaleExtent([0.5, 4]).on("zoom", ({transform}) => g.attr("transform", transform)));
+
+            function dragstarted(event, d) { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; }
+            function dragged(event, d) { d.fx = event.x; d.fy = event.y; }
+            function dragended(event, d) { if (!event.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; }
+        }
+
+        // --- Event Listener Wire-up ---
+        function attachEventListeners() {
+            controlButtons.forEach(button => button.addEventListener('click', () => showView(button.dataset.view)));
+            if(backToSettingsFromLogin) backToSettingsFromLogin.addEventListener('click', () => showView('settingsBaseView'));
+            if(closeModalButton) closeModalButton.addEventListener('click', () => infoModal.style.display = 'none');
+            if(infoModal) infoModal.addEventListener('click', (e) => { if (e.target === infoModal) infoModal.style.display = 'none'; });
+            
+            // Chat
+            if(sendProjectionButton) sendProjectionButton.addEventListener('click', handleSendMessage);
+            if(cognitiveInput) {
+                cognitiveInput.addEventListener('input', () => { 
+                    sendProjectionButton.disabled = cognitiveInput.value.trim() === '' && !attachedFile;
+                    cognitiveInput.style.height = 'auto';
+                    cognitiveInput.style.height = `${cognitiveInput.scrollHeight}px`;
+                });
+                cognitiveInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (!sendProjectionButton.disabled) sendProjectionButton.click();
+                    }
+                });
+            }
+            if(imageUploadButton) imageUploadButton.addEventListener('click', () => actualImageInput.click());
+            if(actualImageInput) actualImageInput.addEventListener('change', (event) => { 
+                const file = event.target.files[0]; 
+                if (file && file.type.startsWith('image/')) { 
+                    attachedFile = file; 
+                    attachedImagePreview.src = URL.createObjectURL(file);
+                    attachedImageNameSpan.textContent = file.name.substring(0,20) + (file.name.length > 20 ? "..." : "");
+                    attachedImagePreviewContainer.style.display = 'flex'; 
+                    sendProjectionButton.disabled = false; 
+                } else { clearAttachedImage(); }
+                actualImageInput.value = ''; 
+            });
+            if(removeAttachedImageButton) removeAttachedImageButton.addEventListener('click', clearAttachedImage);
+            
+            // Voice Input Listener
+            if(voiceInputButton) voiceInputButton.addEventListener('click', handleVoiceInput);
+
+             responseContainer.addEventListener('click', (e) => {
+                const target = e.target.closest('.action-btn, .copy-code-btn');
+                if (!target) return;
+                const messageBubble = target.closest('.message-bubble');
+                if (target.classList.contains('edit-btn')) {
+                    const text = messageBubble.querySelector('.message-content').textContent.trim();
+                    cognitiveInput.value = text;
+                    cognitiveInput.focus();
+                    cognitiveInput.dispatchEvent(new Event('input')); 
+                } else if (target.classList.contains('copy-btn')) {
+                    const text = messageBubble.querySelector('.message-content').innerText;
+                    navigator.clipboard.writeText(text).then(() => target.title = 'تم النسخ!');
+                } else if (target.classList.contains('copy-code-btn')) {
+                    navigator.clipboard.writeText(target.dataset.code).then(() => target.textContent = 'تم!');
+                }
+            });
+
+            // Authentication
+            if(userAvatarButton) userAvatarButton.addEventListener('click', () => showView(currentUser ? 'accountSettingsView' : 'loginView'));
+            if(loginRegisterSettingButton) loginRegisterSettingButton.addEventListener('click', () => showView('loginView'));
+            if(logoutSettingButton) logoutSettingButton.addEventListener('click', () => { 
+                currentUser = null; 
+                localStorage.removeItem('viforUser'); 
+                updateLoginStateUI(); 
+                showInfoModal("تسجيل الخروج", "تم تسجيل خروجك بنجاح."); 
+                showView('chatView'); 
+            });
+            if(switchToRegisterButton) switchToRegisterButton.addEventListener('click', () => { loginForm.style.display = 'none'; registerForm.style.display = 'block'; loginViewTitle.textContent = 'إنشاء حساب'; });
+            if(switchToLoginButton) switchToLoginButton.addEventListener('click', () => { registerForm.style.display = 'none'; loginForm.style.display = 'block'; loginViewTitle.textContent = 'تسجيل الدخول'; });
+            if(loginForm) loginForm.addEventListener('submit', (e) => { 
+                e.preventDefault(); 
+                currentUser = { name: emailInput.value.split('@')[0], email: emailInput.value }; 
+                localStorage.setItem('viforUser', JSON.stringify(currentUser)); 
+                updateLoginStateUI(); 
+                showInfoModal("تسجيل الدخول", `تم تسجيل دخولك بنجاح باسم ${currentUser.name}!`); 
+                showView('settingsBaseView'); 
+                loginForm.reset(); 
+            });
+            if(registerForm) registerForm.addEventListener('submit', (e) => { 
+                e.preventDefault(); 
+                currentUser = { name: registerNameInput.value, email: registerEmailInput.value }; 
+                localStorage.setItem('viforUser', JSON.stringify(currentUser)); 
+                updateLoginStateUI(); 
+                showInfoModal("إنشاء حساب", `تم إنشاء حسابك بنجاح باسم ${currentUser.name}!`); 
+                showView('settingsBaseView'); 
+                registerForm.reset(); 
+            });
+
+            // Settings
+            if(settingsBaseView) {
+                settingsBaseView.addEventListener('click', (e) => {
+                    const item = e.target.closest('.setting-item');
+                    if (!item) return;
+                    const { subview, action } = item.dataset;
+                    if (subview) showView(subview);
+                    else if (action === 'about') showInfoModal("حول التطبيق", "VIFOR AI - نموذج ذكاء اصطناعي مستقبلي. الإصدار 1.0.1 (Gemini Enhanced).");
+                    else if (action === 'change-password') showInfoModal("تنبيه", currentUser ? "هذه الميزة قيد التطوير." : "يرجى تسجيل الدخول أولاً.");
+                });
+            }
+            document.querySelectorAll('.sub-setting-view .back-button').forEach(btn => btn.addEventListener('click', () => showView(btn.dataset.targetview)));
+            if(saveAccountSettingsButton) saveAccountSettingsButton.addEventListener('click', () => {
+                if(currentUser && accSettingNameInput) {
+                    currentUser.name = accSettingNameInput.value.trim();
+                    localStorage.setItem('viforUser', JSON.stringify(currentUser)); 
+                    updateLoginStateUI(); 
+                    showInfoModal("إعدادات الحساب", "تم حفظ اسم العرض الجديد.");
+                }
+            });
+            if(themeSelector) themeSelector.addEventListener('change', (e) => applyTheme(e.target.value));
+            if(fontSizeSlider) fontSizeSlider.addEventListener('input', (e) => applyFontSize(parseInt(e.target.value)));
+            if(animationsToggle) animationsToggle.addEventListener('change', (e) => applyAnimations(e.target.checked));
+            if(msgNotificationsToggle) msgNotificationsToggle.addEventListener('change', e => localStorage.setItem('viforMsgNotifs', e.target.checked));
+            if(systemUpdatesToggle) systemUpdatesToggle.addEventListener('change', e => localStorage.setItem('viforSysNotifs', e.target.checked));
+            if(activityAlertsToggle) activityAlertsToggle.addEventListener('change', e => localStorage.setItem('viforActNotifs', e.target.checked));
+            if (window.matchMedia) window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => applyTheme(localStorage.getItem('viforTheme') || 'system'));
+
+            // Scan View
+            if(analyzeScanButton) analyzeScanButton.addEventListener('click', handleScanAnalysis);
+        }
+
+        // --- Start the app ---
+        initializeApp();
+
+    });
+    </script>
+</body>
+</html>
